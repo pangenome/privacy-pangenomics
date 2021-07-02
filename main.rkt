@@ -3,7 +3,10 @@
 (require ffi/unsafe)
 (require describe)
 (require setup/dirs)
+(require memo)
+
 ; (require libuuid)
+
 
 
 (define-cstruct _CStringArray ([data _pointer]
@@ -31,88 +34,47 @@
 
 (define libgfawrapper (ffi-lib (locate-library-path  "libgfa_wrapper.so")))
 
-(define newDynamicGWBT (get-ffi-obj "newDynamicGBWT" libgbwtwrapper (_fun ->  _pointer)))
-
-(define deleteGBWT (get-ffi-obj "deleteDynamicGBWT" libgbwtwrapper (_fun _pointer ->  _void)))
-
-(define DynamicGBWT->GBWT (get-ffi-obj "DynamicGBWT_to_GBWT" libgbwtwrapper (_fun _pointer ->  _pointer)))
-
-(define insert-sequence (get-ffi-obj "insertSequence" libgbwtwrapper (_fun _pointer _pointer ->  _void)))
-
-(define consume-gfs-file (get-ffi-obj "consume_gfs_file" libgfawrapper (_fun _pointer ->  _CStringArray)))
-
-; (define insert-sequence (get-ffi-obj "insertSequence" libgbwtwrapper (_fun _pointer _pointer ->  _void)))
-
-(define first-node (get-ffi-obj "firstGBWTNode"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-(define find-node (get-ffi-obj  "findGBWT" libgbwtwrapper       (_fun _pointer  _uint64 -> _pointer)))
-
-(define get-search-state-node   (get-ffi-obj "get_search_state_node"  libgbwtwrapper  (_fun _pointer -> _uint64)))
 
 
-(define get-search-state-range (get-ffi-obj "get_search_state_range"  libgbwtwrapper  (_fun _pointer -> _CPair)))
+(define gbwt-functions
+  (make-hash
+   (list
+     `("DGBWT_new" . ,(_fun ->  _pointer))
+     `("DGBWT_to_GBWT" . ,(_fun _pointer ->  _pointer))
+     `("DGBWT_delete" .  ,(_fun _pointer ->  _void))
+     `("DGBWT_insert" . ,(_fun _pointer _pointer ->  _void))
+     `("GBWT_first_node" . ,(_fun _pointer -> _uint64))
+     `("GBWT_find" . ,(_fun _pointer  _uint64 -> _pointer))
+     `("GBWT_extend" . ,(_fun _pointer _pointer _uint64 ->  _pointer))
+     `("GBWT_get_search_state_node" . ,(_fun _pointer -> _uint64))
+     `("GBWT_get_search_state_range" . ,(_fun _pointer -> _CPair))
+     `("GBWT_get_forward_state" . ,(_fun _pointer -> _pointer))
+     `("GBWT_get_backward_state" . ,(_fun _pointer -> _pointer))
+     `("GBWT_get_search_state_size" . ,(_fun _pointer -> _uint64))
+     `("GBWT_get_bidirectional_state_size" . ,(_fun _pointer -> _uint64))
+     `("GBWT_is_search_state_empty"  . ,(_fun _pointer -> _bool))
+     `("GBWT_flip_state"  . ,(_fun _pointer -> _bool))
+     `("GBWT_total_path_length"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_number_of_paths"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_alphabet_size"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_number_of_samples"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_effective_alpahbet_size"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_contains_search_state" . ,(_fun _pointer _pointer ->  _bool))
+     `("GBWT_has_edge" . ,(_fun _pointer _uint64 _uint64 ->  _bool))
+     `("GBWT_to_Comp" . ,(_fun _pointer _uint64 ->  _uint64))
+     `("GBWT_to_Node" . ,(_fun _pointer _uint64 ->  _uint64))
+     `("GBWT_node_size" . ,(_fun _pointer _uint64 ->  _uint64))
+     `("GBWT_locateGBWT" . ,(_fun _pointer _uint64 _uint64 ->  _uint64))
+     `("GBWT_contains_node"  .  ,(_fun _pointer  _uint64 ->  _bool))
+     `("GBWT_contains_edge"   .  ,(_fun _pointer _uint64 ->  _bool))
+     `("GBWT_contains_search_state"   .  ,(_fun _pointer _pointer ->  _bool)))))
 
 
-(define get-forward-state (get-ffi-obj "get_forward_state"  libgbwtwrapper  (_fun _pointer -> _pointer)))
+(define read-GFA (get-ffi-obj "consume_gfs_file" libgfawrapper (_fun _pointer ->  _CStringArray)))
 
 
-(define get-backward-state (get-ffi-obj "get_backward_state"  libgbwtwrapper  (_fun _pointer -> _pointer)))
-
-(define get-search-state-size (get-ffi-obj "get_search_state_size"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-(define get-bidirectional-state-size (get-ffi-obj "get_bidirectional_state_size" libgbwtwrapper (_fun _pointer -> _uint64)))
-
-(define  is-state-empty (get-ffi-obj "is_search_state_empty"  libgbwtwrapper  (_fun _pointer -> _bool)))
-
-(define  flip-state (get-ffi-obj "flip_state"  libgbwtwrapper  (_fun _pointer -> _bool)))
-
-(define total-path-length  (get-ffi-obj "total_path_length"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-(define number-of-paths (get-ffi-obj "number_of_paths"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-(define alphabet-size (get-ffi-obj "alphabet_size"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-(define number-of-samples (get-ffi-obj "number_of_samples"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-(define effective-alphabet-size (get-ffi-obj "effective_alpahbet_size"  libgbwtwrapper  (_fun _pointer -> _uint64)))
-
-; (define prefixGBWT  (get-ffi-obj "prefixGBWT" libgbwtwrapper (_fun _pointer _uint64 ->  _pointer)))
-
-(define extendGBWT (get-ffi-obj "extendGBWT" libgbwtwrapper (_fun _pointer _pointer _uint64 ->  _pointer)))
-
-(define locateGBWT (get-ffi-obj "locateGBWT" libgbwtwrapper (_fun _pointer _uint64 _uint64 ->  _uint64)))
-
-                    ;;
-(define contains-node (get-ffi-obj "contains_node" libgbwtwrapper (_fun _pointer  _uint64 ->  _bool)))
-
-;(define  contains_edge (get-ffi-obj "contains_edge" libgbwtwrapper (_fun _pointer _uint64 ->  _bool)))
-
-(define  contains-searchState (get-ffi-obj "contains_searchState" libgbwtwrapper (_fun _pointer _pointer ->  _bool)))
-
-(define  has-edge (get-ffi-obj "has_edge" libgbwtwrapper (_fun _pointer _uint64 _uint64 ->  _bool)))
-
-(define  to-comp (get-ffi-obj "to_Comp" libgbwtwrapper (_fun _pointer _uint64 ->  _uint64)))
-
-(define  to-node (get-ffi-obj "to_Node" libgbwtwrapper (_fun _pointer _uint64 ->  _uint64)))
-
-(define  node-size (get-ffi-obj "node_size" libgbwtwrapper (_fun _pointer _uint64 ->  _uint64)))
-; extern "C" bool contains_node (void * GBWT, node_type node);
-; extern "C" bool contains_edge(void * GBWT,  edge_type position);
-; extern "C" bool contains_searchState(void * GBWT,  CSearchState state);
-; extern "C" bool has_edge(void * GBWT,  node_type from, node_type to);
-; extern "C" comp_type to_Comp(void * GBWT,  node_type node);
-; extern "C" node_type to_Node(void * GBWT,  comp_type comp);
-; extern "C" size_type node_size(void * GBWT,  node_type node);
-
-
-
-; (define DynamicGBWT->GBWT (get-ffi-obj "DynamicGBWT_to_GBWT" libgbwtwrapper (_fun _pointer ->  _pointer)))
-
-
-
-
-(define (get-all-gfa-files)
- (let ([fs  (directory-list  (current-directory))])
+(define (get-GFAS)                                                                                                                                                                   
+ (let ([fs  (directory-list  (current-directory))])                                                                                                                                           
   (map (λ(x) (string->bytes/utf-8 (path->string x)))
    (filter (λ (x)
              (let ([the-file (path-get-extension (path->string x))])
@@ -120,69 +82,29 @@
                    #f
                    (bytes=? #".gfa" the-file)))) fs))))
 
-
-(define graph-files (get-all-gfa-files))
-; (string->bytes/utf-8 "sequence")
-
-(define sample-gfa (consume-gfs-file (car graph-files)))
-; (describe sample-gfa)
-; (CStringArray-data sample-gfa)
-
-
-; (in-inclusive-range start end [step]) → stream?
-
-(define (make-genome-stream the-struct)
-  (let ([data (CStringArray-data the-struct)]
-        [the-stream (in-range 0 (CStringArray-size the-struct))])
-    (stream-map (λ (x) (ptr-ref data _pointer x)) the-stream)))
+(define/memoize (create-foreign-function k)
+  (with-handlers
+    ([exn:fail:contract?   (λ (exn) (displayln (exn-message exn)))]
+     [exn:fail?  (λ (exn)
+                    (let([box_ (set-box! (box)  (hash-remove (unbox (create-foreign-function)) k))])
+                      (set-box! (create-foreign-function ) box_)
+                      (displayln (exn-message exn))))])
+    (letrec ([k*  (regexp-replace* #rx"-" k "_")]
+             [v (hash-ref gbwt-functions k*)])
+      (get-ffi-obj k* libgbwtwrapper  v))))
 
 
-(define genome-stream (make-genome-stream sample-gfa))
+(define (call-method  . xs)
+     (match xs
+       ['() (raise "You need to provide the method name in kebab or snake case")]
+       [(list head)  (create-foreign-function head)]
+       [(cons head tail)  (apply (create-foreign-function head) tail)]))
 
 
-(define the-gbwt (newDynamicGWBT))
-
-; (describe DynamicGBWT->GBWT)
-(describe the-gbwt)
-
-(define (insert-to-sample-gbwt gbwt_)
-  (stream-for-each
-    (λ (x)
-       (insert-sequence gbwt_ x))
-    genome-stream)
-  (stream-length genome-stream))
-
-(define (find-number-of-nodes gbwt_)
-  (let loop [(node-number 0)]
-    (if (contains-node  gbwt_  node-number)
-        (loop  (+ 1 node-number))
-        node-number)))
-
-
-(insert-to-sample-gbwt the-gbwt)
-(define GBWT  (DynamicGBWT->GBWT the-gbwt))
-; (describe GBWT)
-; (first-node GBWT)
-; (total-path-length GBWT)
-; (number-of-paths GBWT)
-
-; ;
-;
-; (contains-node GBWT 2)
-; (find-number-of-nodes GBWT)
-; (define test-state (find-node GBWT 3))
-;
-;
-; ;
-; (define skata  (get-search-state-node test-state))
-; (describe skata)
-; (display skata)
-;
-#|
-
-; (alphabet-size GBWT)
-; (describe GBWT)
-;;index statistics
-|#
+(define GFAs (get-GFAS))
+(define sample-GFA (read-GFA (car GFAs)))
+(describe sample-GFA)
+(CStringArray-size sample-GFA)
+(ptr-ref  (CStringArray-data sample-GFA) _string  15)
 
 
