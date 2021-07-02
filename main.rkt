@@ -101,6 +101,17 @@
        [(cons head tail)  (apply (create-foreign-function head) tail)]))
 
 
+
+(define (make-genome-stream the-struct)
+ (let ([data (CStringArray-data the-struct)]
+       [the-stream (in-range 0 (CStringArray-size the-struct))])
+   (stream-map (λ (x) (ptr-ref data _pointer x)) the-stream)))
+
+(define (insert-to-sample-gbwt gbwt_ gs)
+  (stream-for-each
+    (λ (x) (call-method "DGBWT_insert" gbwt_ x)) gs)
+  (stream-length gs))
+
 (define GFAs (get-GFAS))
 (define sample-GFA (read-GFA (car GFAs)))
 (describe sample-GFA)
