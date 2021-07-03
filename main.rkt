@@ -64,7 +64,7 @@
      `("GBWT_to_Comp" . ,(_fun _pointer _uint64 ->  _uint64))
      `("GBWT_to_Node" . ,(_fun _pointer _uint64 ->  _uint64))
      `("GBWT_node_size" . ,(_fun _pointer _uint64 ->  _uint64))
-     `("GBWT_locateGBWT" . ,(_fun _pointer _uint64 _uint64 ->  _uint64))
+     `("GBWT_locate" . ,(_fun _pointer _uint64 _uint64 ->  _uint64))
      `("GBWT_contains_node"  .  ,(_fun _pointer  _uint64 ->  _bool))
      `("GBWT_contains_edge"   .  ,(_fun _pointer _uint64 ->  _bool))
      `("GBWT_contains_search_state"   .  ,(_fun _pointer _pointer ->  _bool)))))
@@ -112,10 +112,19 @@
     (λ (x) (call-method "DGBWT_insert" gbwt_ x)) gs)
   (stream-length gs))
 
-(define GFAs (get-GFAS))
-(define sample-GFA (read-GFA (car GFAs)))
-(describe sample-GFA)
-(CStringArray-size sample-GFA)
-(ptr-ref  (CStringArray-data sample-GFA) _string  15)
+
+(define  (get-line . xs)
+  (match xs
+   [(list head) (get-line head 1)]
+   [(list f s) #:when (< s (CStringArray-size f))
+               string->immutable-string  (ptr-ref  (CStringArray-data f) _string  s)]))
+
+; (> (CStringArray-size sample-GFA  ) 3)
+; (get-line sample-GFA 1)
+; (define GFAs (get-GFAS))
+; (define sample-GFA (read-GFA (car GFAs)))
+; (describe sample-GFA)
+; (CStringArray-size sample-GFA)
+; (describe (string->immutable-string  (ptr-ref  (CStringArray-data sample-GFA) _string  15)))
 
 
