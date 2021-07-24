@@ -1,14 +1,15 @@
 #lang racket
 
+
 (require ffi/unsafe)
 (require describe)
 (require setup/dirs)
 (require memo)
 
-; (require libuuid)
+(provide call-external-method)
 
 
-; (define skata (ffi-lib "/usr/local/lib/libhandlegraph.so" #:global? #t))
+; (void (ffi-lib "/usr/local/lib/libhandlegraph.so" #:global? #t))
 
 (define-cstruct _CStringArray ([data _pointer]
                                [size _int]))
@@ -60,15 +61,15 @@
      `("GBWT_first_node" . ,(_fun _pointer -> _uint64))
      `("GBWT_find" . ,(_fun _pointer _pointer _uint64 -> _void))
      `("GBWT_extend" . ,(_fun _pointer _pointer _pointer _uint64 ->  _void))
-     `("GBWT_get_forward_state" . ,(_fun _pointer _pointer -> _void))
-     `("GBWT_get_backward_state" . ,(_fun  _pointer _pointer -> _void))
+     `("BI_SEARCHSTATE_backward" . ,(_fun _pointer _pointer -> _void))
+     `("BI_SEARCHSTATE_forward" . ,(_fun  _pointer _pointer -> _void))
      `("SEARCHSTATE_size" . ,(_fun _pointer -> _uint64))
 
      `("BI_SEARCHSTATE_state_size" . ,(_fun _pointer -> _uint64))
      `("SEARCHSTATE_empty"  . ,(_fun _pointer -> _bool))
      `("SEARCHSTATE_flip"  . ,(_fun _pointer -> _bool))
      `("GBWT_size"  . ,(_fun _pointer -> _uint64))
-     `("GBWT_sequenses"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_sequences"  . ,(_fun _pointer -> _uint64))
      `("GBWT_sigma"  . ,(_fun _pointer -> _uint64))
      `("GBWT_samples"  . ,(_fun _pointer -> _uint64))
      `("GBWT_effective"  . ,(_fun _pointer -> _uint64))
@@ -85,13 +86,12 @@
      `("GBWT_contains_edge" . ,(_fun _pointer _CPair ->  _bool))
      `("GBWT_SEARCHSTATE_contains_"   .  ,(_fun _pointer _pointer ->  _bool))
      `("GBWT_LF_next_node_from_offset" . ,(_fun _pointer _uint64  _uint64 ->  _CPair))
-     `
+     `("GBWT_sequences " . ,(_fun _pointer -> _uint64))
      `("GBWT_LF_next_node_from_edge" . ,(_fun _pointer _CPair ->  _CPair))
      `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _CPair _uint64 ->  _CPair))
      `("GBWT_LF_range_of_successors_from_node" . ,(_fun _pointer _uint64 _CPair  _uint64 ->  _CPair))
      `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
      `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
-
 
 
 
@@ -110,7 +110,8 @@
                    #f
                    (bytes=? #".gfa" the-file)))) fs))))
 
-(define/memoize (create-foreign-function k)
+(define/memoize (create-foreign-function m)
+ (let ([k (if (symbol? m)(symbol->string m) m)])
   (with-handlers
     ([exn:fail:contract?   (λ (exn) (displayln (exn-message exn)))]
      [exn:fail?  (λ (exn)
@@ -119,10 +120,10 @@
                       (displayln (exn-message exn))))])
     (letrec ([k*  (regexp-replace* #rx"-" k "_")]
              [v (hash-ref gbwt-functions k*)])
-      (get-ffi-obj k* libgbwtwrapper  v))))
+      (get-ffi-obj k* libgbwtwrapper  v)))))
 
 
-(define (call-gbwt-method  . xs)
+(define (call-external-method  . xs)
      (match xs
        [(cons head tail)  (apply (create-foreign-function head) tail)]
        [(list head)  (create-foreign-function head)]
@@ -136,7 +137,7 @@
 
 (define (insert-to-sample-gbwt gbwt_ gs)
   (stream-for-each
-    (λ (x) (call-gbwt-method "DGBWT_insert" gbwt_ x)) gs)
+    (λ (x) (call-external-method "DGBWT_insert" gbwt_ x)) gs)
   (stream-length gs))
 
 (define  (get-line . xs)
@@ -145,73 +146,11 @@
    [(list f s) #:when (< s (CStringArray-size f))
                string->immutable-string  (ptr-ref  (CStringArray-data f) _string  s)]))
 
+
 (define GFAs (get-GFAS))
 
 
-(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-gbwt-method "GBWTGRAPH-gfa-to-gbwt"   (list-ref GFAs 3))))
-
-(call-gbwt-method  "GBWT-first-node" sample-gbwt)
-
-; (call-gbwt-method  "GBWT-node-size"  sample-gbwt 2)
-(call-gbwt-method "GBWT-sequences" sample-gbwt)
-
-(define  ss_size (call-gbwt-method "SEARCHSTATE_sizeof"))
-
-(define search-state (malloc 'atomic ss_size))
+(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-external-method 'GBWTGRAPH-gfa-to-gbwt    (list-ref GFAs 3))))
 
 
-(call-gbwt-method "GBWT_find" sample-gbwt search-state 2)
-
-
-
-; `("GBWT_find" . ,(_fun _pointer _pointer _uint64 -> _pointer)))
-;(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-gbwt-method "GBWTGRAPH-gfa-to-gbwt"    (car   GFAs))))
-; (define search_s (call-gbwt-method "GBWT-find" sample-gbwt  2))
-;
-;
-
-;
-;
-(call-gbwt-method  "SEARCHSTATE_node" search-state)
-;
-(call-gbwt-method  "SEARCHSTATE_size" search-state)
-;
-(call-gbwt-method  "SEARCHSTATE_empty"  search-state)
-
-; (build-list 100 (λ (_) (call-gbwt-method  "GBWT-first-node" sample-gbwt)))
-;
-; (build-list 100 (λ (_) (call-gbwt-method "GBWT-number-of-paths" sample-gbwt)))
-
-; vector_type extract(size_type sequence) const
-; (call-gbwt-method "GBWT-node-size" sample-gbwt 1)
-
-
-; (debug _bool)
-
-;(call-gbwt-method "GBWT-contains" sample-gbwt)
-;
-; (define extended-state (call-gbwt-method "GBWT-extend" sample-gbwt search-state  search-state 5))
-;(call-gbwt-method "GBWT-get-search-state-size" extended-state)
-
-; (call-gbwt-find 2)
-; (define pipa (call-gbwt-method "debug"))
-; (describe pipa)
-; (displayln pipa)
-; (call-gbwt-method "GBWT_is_search_state_empty" search-s)
-
-
-
-
-;("GBWT_first_node" . ,(_fun _pointer -> _uint64))
-; (describe  (GBWTSequenceSourcePair-gbwt-ref sample-gbwt))
-; (define pipa  (call-gbwt-method "GBWTGRAPH_gfa_to_gbwt"  ))
-
-; (get-line sample-GFA 15)
-
-; (> (CStringArray-size sample-GFA  ) 3)
-
-;(describe sample-GFA)
-;(CStringArray-size sample-GFA)
-;(describe (string->immutable-string  (ptr-ref  (CStringArray-data sample-GFA) _string  15)))
-
-
+(define search-state (malloc 'atomic (call-external-method "SEARCHSTATE_sizeof")))
