@@ -34,51 +34,65 @@
 (define libgfawrapper (ffi-lib (locate-library-path  "libgfa_wrapper.so")))
 
 
+(define gbwt-functions-ref
+  (make-hash
+   (list
+     `("SEARCHSTATE" .  (make-hash (list `("BARE" . (make-hash (list)))))))))
+
+
 (define gbwt-functions
   (make-hash
    (list
-     `("sizeof_bi_search_state" . ,(_fun ->  _int))
-     `("sizeof_search_state" . ,(_fun ->  _int))
+
+     `("DGBWT_delete" .  ,(_fun _pointer ->  _void))
      `("DGBWT_new" . ,(_fun ->  _pointer))
      `("DGBWT_to_GBWT" . ,(_fun _pointer ->  _pointer))
      `("DGBWT_delete" .  ,(_fun _pointer ->  _void))
      `("DGBWT_insert" . ,(_fun _pointer _pointer ->  _pointer))
+     `("GBWT_SEARCHSTATE_extend" . ,(_fun _pointer _pointer _pointer _uint64 ->  _void))
+
+     `("SEARCHSTATE_sizeof" . ,(_fun ->  _int))
+     `("SEARCHSTATE_node" . ,(_fun _pointer -> _uint64))
+     `("SEARCHSTATE_range" . ,(_fun _pointer -> _CPair))
+     `("BI_SEARCHSTATE_sizeof" . ,(_fun ->  _int))
+
      `("GBWT_delete" .  ,(_fun _pointer ->  _void))
      `("GBWT_first_node" . ,(_fun _pointer -> _uint64))
      `("GBWT_find" . ,(_fun _pointer _pointer _uint64 -> _void))
      `("GBWT_extend" . ,(_fun _pointer _pointer _pointer _uint64 ->  _void))
-     `("GBWT_get_search_state_node" . ,(_fun _pointer -> _uint64))
-     `("GBWT_get_search_state_range" . ,(_fun _pointer -> _CPair))
      `("GBWT_get_forward_state" . ,(_fun _pointer _pointer -> _void))
      `("GBWT_get_backward_state" . ,(_fun  _pointer _pointer -> _void))
-     `("GBWT_get_search_state_size" . ,(_fun _pointer -> _uint64))
-     `("GBWT_get_bidirectional_state_size" . ,(_fun _pointer -> _uint64))
-     `("GBWT_is_search_state_empty"  . ,(_fun _pointer -> _bool))
-     `("GBWT_flip_state"  . ,(_fun _pointer -> _bool))
-     `("GBWT_total_path_length"  . ,(_fun _pointer -> _uint64))
-     `("GBWT_number_of_paths"  . ,(_fun _pointer -> _uint64))
-     `("GBWT_alphabet_size"  . ,(_fun _pointer -> _uint64))
-     `("GBWT_number_of_samples"  . ,(_fun _pointer -> _uint64))
-     `("GBWT_effective_alphabet_size"  . ,(_fun _pointer -> _uint64))
-     `("GBWT_contains_search_state" . ,(_fun _pointer _pointer ->  _bool))
-     `("GBWT_has_edge" . ,(_fun _pointer _uint64 _uint64 ->  _bool))
-     `("GBWT_to_Comp" . ,(_fun _pointer _uint64 ->  _uint64))
-     `("GBWT_to_Node" . ,(_fun _pointer _uint64 ->  _uint64))
+     `("SEARCHSTATE_size" . ,(_fun _pointer -> _uint64))
+
+     `("BI_SEARCHSTATE_state_size" . ,(_fun _pointer -> _uint64))
+     `("SEARCHSTATE_empty"  . ,(_fun _pointer -> _bool))
+     `("SEARCHSTATE_flip"  . ,(_fun _pointer -> _bool))
+     `("GBWT_size"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_sequenses"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_sigma"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_samples"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_effective"  . ,(_fun _pointer -> _uint64))
+     `("GBWT_SEARCHSTATE_contains" . ,(_fun _pointer _pointer ->  _bool))
+
+
+     `("GBWT_edge" . ,(_fun _pointer _uint64 _uint64 ->  _bool))
+     `("GBWT_to_comp" . ,(_fun _pointer _uint64 ->  _uint64))
+     `("GBWT_to_node" . ,(_fun _pointer _uint64 ->  _uint64))
+
      `("GBWT_node_size" . ,(_fun _pointer _uint64 ->  _uint64))
      `("GBWT_locate" . ,(_fun _pointer _uint64 _uint64 ->  _uint64))
-     `("GBWT_contains_node"  .  ,(_fun _pointer  _uint64 ->  _bool))
-     `("GBWT_contains_edge"   .  ,(_fun _pointer _uint64 ->  _bool))
-     `("GBWT_contains_search_state"   .  ,(_fun _pointer _pointer ->  _bool))
-     ; `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
-     `("GBWT_LF_next_node_from_offset" . ,(_fun _pointer _uint64  _uint64 ->  _CPair))
+     `("GBWT_contains "  .  ,(_fun _pointer  _uint64 ->  _bool))
      `("GBWT_contains_edge" . ,(_fun _pointer _CPair ->  _bool))
+     `("GBWT_SEARCHSTATE_contains_"   .  ,(_fun _pointer _pointer ->  _bool))
+     `("GBWT_LF_next_node_from_offset" . ,(_fun _pointer _uint64  _uint64 ->  _CPair))
+     `
      `("GBWT_LF_next_node_from_edge" . ,(_fun _pointer _CPair ->  _CPair))
      `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _CPair _uint64 ->  _CPair))
      `("GBWT_LF_range_of_successors_from_node" . ,(_fun _pointer _uint64 _CPair  _uint64 ->  _CPair))
      `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
-     `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair))
-     `("sizeof_search_state". ,(_fun -> _int))
-     `("sizeof_bi_search_state". ,(_fun -> _int)))))
+     `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
+
+
 
 
 (define (debug _t)
@@ -125,7 +139,6 @@
     (λ (x) (call-gbwt-method "DGBWT_insert" gbwt_ x)) gs)
   (stream-length gs))
 
-
 (define  (get-line . xs)
   (match xs
    [(list head) (get-line head 1)]
@@ -134,45 +147,36 @@
 
 (define GFAs (get-GFAS))
 
-; (define sample-GFA (read-GFA (car GFAs)))
-
 
 (define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-gbwt-method "GBWTGRAPH-gfa-to-gbwt"   (list-ref GFAs 3))))
 
 (call-gbwt-method  "GBWT-first-node" sample-gbwt)
 
-(call-gbwt-method  "GBWT-alphabet-size"  sample-gbwt)
+; (call-gbwt-method  "GBWT-node-size"  sample-gbwt 2)
+(call-gbwt-method "GBWT-sequences" sample-gbwt)
 
-(call-gbwt-method "GBWT-number-of-paths" sample-gbwt)
+(define  ss_size (call-gbwt-method "SEARCHSTATE_sizeof"))
 
-(call-gbwt-method "sizeof_search_state")
+(define search-state (malloc 'atomic ss_size))
 
-(define search-state (malloc 'atomic (call-gbwt-method "sizeof_search_state")))
+
+(call-gbwt-method "GBWT_find" sample-gbwt search-state 2)
+
 
 
 ; `("GBWT_find" . ,(_fun _pointer _pointer _uint64 -> _pointer)))
-(define pipa (call-gbwt-method "GBWT_find" sample-gbwt search-state 2))
-
-(describe pipa)
 ;(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-gbwt-method "GBWTGRAPH-gfa-to-gbwt"    (car   GFAs))))
-
 ; (define search_s (call-gbwt-method "GBWT-find" sample-gbwt  2))
 ;
 ;
-; (call-gbwt-method "GBWT_is_search_state_empty" search_s)
-;
-; (call-gbwt-method "GBWT_get_search_state_size" search_s)
-;
-; (call-gbwt-method  "GBWT_get_search_state_node"  search_s)
-;
 
-; (call-bgwt-method "debug")
 ;
-(call-gbwt-method  "GBWT_get_search_state_node" search-state)
 ;
-(call-gbwt-method  "GBWT_get_search_state_size" search-state)
+(call-gbwt-method  "SEARCHSTATE_node" search-state)
 ;
-(call-gbwt-method  "GBWT_is_search_state_empty"  search-state)
+(call-gbwt-method  "SEARCHSTATE_size" search-state)
+;
+(call-gbwt-method  "SEARCHSTATE_empty"  search-state)
 
 ; (build-list 100 (λ (_) (call-gbwt-method  "GBWT-first-node" sample-gbwt)))
 ;
