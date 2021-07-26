@@ -32,7 +32,7 @@
 
 (define libgbwtwrapper (ffi-lib (locate-library-path  "libgbwtwrapper.so")))
 
-(define libgfawrapper (ffi-lib (locate-library-path  "libgfa_wrapper.so")))
+; (define libgfawrapper (ffi-lib (locate-library-path  "libgfa_wrapper.so")))
 
 
 (define gbwt-functions-ref
@@ -90,8 +90,8 @@
      `("GBWT_LF_next_node_from_edge" . ,(_fun _pointer _CPair ->  _CPair))
      `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _CPair _uint64 ->  _CPair))
      `("GBWT_LF_range_of_successors_from_node" . ,(_fun _pointer _uint64 _CPair  _uint64 ->  _CPair))
-     `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
-     `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
+     `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair)))))
+     ; `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
 
 
 
@@ -99,7 +99,7 @@
   (let ([deb  (get-ffi-obj "debug" libgbwtwrapper (_fun -> _pointer))])
     (ptr-ref  (deb) _t)))
 
-(define read-GFA (get-ffi-obj "consume_gfs_file" libgfawrapper (_fun _pointer ->  _CStringArray)))
+; (define read-GFA (get-ffi-obj "consume_gfs_file" libgfawrapper (_fun _pointer ->  _CStringArray)))
 
 (define (get-GFAS)
  (let ([fs  (directory-list  (current-directory))])
@@ -146,11 +146,11 @@
    [(list f s) #:when (< s (CStringArray-size f))
                string->immutable-string  (ptr-ref  (CStringArray-data f) _string  s)]))
 
-
 (define GFAs (get-GFAS))
-
 
 (define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-external-method 'GBWTGRAPH-gfa-to-gbwt    (list-ref GFAs 3))))
 
-
 (define search-state (malloc 'atomic (call-external-method "SEARCHSTATE_sizeof")))
+
+
+

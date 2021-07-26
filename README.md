@@ -1,4 +1,5 @@
-ampq-client
+GBWT api 
 ===========
 README text here.
-# racket-ampq
+This projects exposes and uses the gbwt and gbwtgraph api
+
