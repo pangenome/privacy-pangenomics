@@ -90,8 +90,8 @@
      `("GBWT_LF_next_node_from_edge" . ,(_fun _pointer _CPair ->  _CPair))
      `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _CPair _uint64 ->  _CPair))
      `("GBWT_LF_range_of_successors_from_node" . ,(_fun _pointer _uint64 _CPair  _uint64 ->  _CPair))
-     `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair)))))
-     ; `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
+     `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
+     `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
 
 
 

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+        <head>
+                <meta charset="utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>Blog - Free Bulma template</title>
+                <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+                <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.9.1/css/OverlayScrollbars.min.css'>
+                <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+                <!-- Bulma Version 0.9.0-->
+
+
+
+
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"/>
+                <link rel="stylesheet" type="text/css" href="./css/blog.css">
+        </head>
+
+        <body>
+                <nav class="navbar">
+                        <div class="container">
+                                <div class="navbar-brand">
+                                        <a class="navbar-item" href="../">
+                                                <img src="./images/bulma.png" alt="Logo">
+                                        </a>
+                                        <span class="navbar-burger burger" data-target="navbarMenu">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                        </span>
+                                </div>
+                                <div id="navbarMenu" class="navbar-menu">
+                                        <div class="navbar-end">
+                                                <a class="navbar-item is-active">
+                                                        Home
+                                                </a>
+                                                <a class="navbar-item">
+                                                        Examples
+                                                </a>
+                                                <a class="navbar-item">
+                                                        Features
+                                                </a>
+                                                <a class="navbar-item">
+                                                        Team
+                                                </a>
+                                                <a class="navbar-item">
+                                                        Archives
+                                                </a>
+                                                <a class="navbar-item">
+                                                        Help
+                                                </a>
+                                                <div class="navbar-item has-dropdown is-hoverable">
+                                                        <a class="navbar-link">
+                                                                Account
+                                                        </a>
+                                                        <div class="navbar-dropdown">
+                                                                <a class="navbar-item">
+                                                                        Dashboard
+                                                                </a>
+                                                                <a class="navbar-item">
+                                                                        Profile
+                                                                </a>
+                                                                <a class="navbar-item">
+                                                                        Settings
+                                                                </a>
+                                                                <hr class="navbar-divider">
+                                                                <div class="navbar-item">
+                                                                        Logout
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                </nav>
+                <!-- END NAV -->
+
+                <section class="hero is-info is-medium is-bold">
+                        <div class="hero-body">
+                                <div class="container has-text-centered">
+                                        <div class="title is-1">Private Pangenomics</div>
+                                        <h2 class="subtitle">Making genomic data accessible with strong privacy garanties</h2>
+                                </div>
+                        </div>
+                </section>
+
+
+
+
+
+                <div class="container">
+                        <!-- START ARTICLE FEED -->
+                        <section class="articles">
+                                <div class="column is-8 is-offset-2">
+                                        <!-- START ARTICLE -->
+                                        <div class="card article">
+                                                <div class="card-content">
+                                                        <div class="media">
+                                                                <div class="media-content has-text-centered">
+                                                                        <p class="title article-title"></p>
+                                                                        <div class="tags has-addons level-item">
+                                                                                <span class="tag is-rounded is-info">@"@"heefoo</span>
+                                                                                <span class="tag is-rounded">June 14, 2021</span>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+
+                                                        <div class="columns">
+                                                                <div class="column">
+                                                                        <div class="media-center">
+                                                                                <img src="/static/images/dna.png" class="author-image" alt="Placeholder image">
+                                                                        </div>
+
+                                                                </div>
+
+                                                                <div class="column">
+                                                                        <div class="media-content has-text-centered">
+                                                                                <div class="content article-body">
+                                                                                        <h3 class="has-text-centered">About the Project</h3>
+                                                                                        <p>There is an increasing need in science, medicine and many other contexts to selectively
+                                                                                        aggregate and selectively share data across different sources while at the same time
+                                                                                        preserving privacy of data sources where possible.
+                                                                                        One way to attach this problem is through the usage of privacy-preserving
+                                                                                        variation graphs, that allow to capture complex models and aggregate data
+                                                                                        resources with formal privacy guarantees of the individual data
+                                                                                        sources from which they were constructed.
+                                                                                        </p>
+                                                                                </div>
+                                                                        </div>
+
+                                                                </div>
+                                                        </div>
+
+                                                </div>
+                                        </div>
+                                        <!-- START ARTICLE -->
+                                        <div class="card article">
+                                                <div class="card-content">
+                                                        <div class="media">
+                                                                <div class="media-content has-text-centered">
+                                                                        <p class="title article-title"></p>
+                                                                        <div class="tags has-addons level-item">
+                                                                                <span class="tag is-rounded is-info">@"@"heefoo</span>
+                                                                                <span class="tag is-rounded">July 24, 2021</span>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+
+                                                        <div class="columns">
+                                                                <div class="column">
+                                                                        <div class="content article-body">
+                                                                                <h3>Introducing up the tools</h3>
+                                                                                <p> We need a way to manipulate GraphBurrows-Wheeler Transformdatastructures (hereby and thereafter referred as"GBWT data structure" or simpler "GBWT" ).
+                                                                                There are not many available options at the time of writing so the best strategy seems to be wrapping and exposing api from <a href="https://github.com/jltsiren/gbwt"> gbwt </a>
+                                                                                <a href="https://github.com/jltsiren/gbwtgraph"> and gbwtgraph</a>.
+                                                                                </p>
+
+                                                                                <h2>Objective : Create a shared C library "libgbwtwrapper.so" to manipulate GBWT</h2>
+
+                                                                                <p>
+                                                                                We have to compile the above to projects and force the to produce static libraries that we can link later
+                                                                                together
+                                                                                </p>
+
+                                                                                <h4>How to compile the wrapper library</h4>
+                                                                                <!-- MY_CXX_FLAGS= -fPIC -->
+                                                                                <ol>
+                                                                                        <li>Clone the repository recursively
+                                                                                                <br>
+                                                                                                <code> git clone --depth=1 --recursive https://github.com/jltsiren/gbwtgraph  </code> </li>
+                                                                                        This will clone all the dependencies recursively, which will have to compile manually. Before that, is essential to deal with the
+                                                                                        MakeFiles. both gbwt and gbwt graph depend on sdsl-lite, located (at the time of writing) in deps/gbwt/deps/sdsl-lite
+                                                                                        and is different than the path in MakeFiles, the later being "SDSL_DIR=../sdsl-lite". The most convenient way to fix this is by creating
+                                                                                        symbolic links.  From the top level directory run.
+                                                                                        <br>
+                                                                                        <code>  cd ../ && ln -s   gbwtgraph/deps/gbwt/deps/sdsl-lite ./sdsl-lite  && cd gbwtgraph/deps && ln -s  gbwt/deps/sdsl-lite sdsl-lite && ../ </code>
+                                                                                        <li> Next compile and install the  sdsl-lite,  <!-- gbwtgraph/deps/gbwt/deps/sdsl-lite  -->and libhandlegraph header and library files. </li>
+                                                                                        run
+                                                                                        <br> <code> cd gbwtgraph/deps/gbwt/deps/sdsl-lite </code>   <br>
+                                                                                        and edit  <br> <code>CMakeLists.txt</code> <br>
+                                                                                        then insert somewhere at the top of the file
+                                                                                        <br>
+                                                                                        <code>set( CMAKE_CXX_FLAGS "-fPIC" )  </code>   <br>
+                                                                                        save, exit and
+                                                                                        <br> <code> cd gbwtgraph/deps/gbwt/deps/sdsl-lite && cmake . && make && sudo make install  </code>  <br>
+                                                                                        The -fPIC flag is necessary in order to later build a dynamic library. The last "make install" command probably needs
+                                                                                        admin privileges, so sudo make install seems appropriate
+                                                                                        <li>Install gbwt </li>
+                                                                                        Fortunately the -fPIC flag seems to be incuded so a simple make will suffice
+                                                                                        Navigate to gbwtgraph/deps/gbwt   and run  <br> <code>  make  && make install && sudo ./install /usr/local/ && ../ </code>   <br>
+                                                                                        <li> Install libhandlegraph </li>
+                                                                                        run from gbwtgraph/deps/libhandlegraph  <br>   <code> cmake . && make CXXFLAGS="-fPIC" && sudo make install</code>     <br>
+                                                                                        again the last command might need  sudo-ing
+                                                                                        <li>Install gbwtgraph </li>
+                                                                                        from gbwtgraph, Edit the <code>install</code> file and change the line
+                                                                                        <br>  <code> make -j "${JOBS}" </code>  <br>  to  make  CXXFLAGS="-fPIC" -j "${JOBS}"   <br>   <code>  </code>
+                                                                                        then   <br>  <code>sudo ./install /usr/local </code>    <br>
+                                                                                        <!-- <code> make CXXFLAGS="-fPIC" &#38;&#38; sudo make install </code> -->
+                                                                                        Now the folder /usr/local/lib must include the following files libhandlegraph.a libhandlegraph.so libgbwt.a libgbwtgraph.a
+                                                                                        <li>Last step: compile the wrapper </li>
+                                                                                        abandon gbwtgraph, and clone the wrapper
+                                                                                        <br> <code>clone https://github.com/pangenome/gbwt-wrapper && cd gbwt-wrapper</code>   <br>
+                                                                                        Then run  <br>  <code> cd gbwt-wrapper && gcc -c -fPIC gbwt_wrapper.cpp; g++ -o libgbwtwrapper.so -Wl,--whole-archive /usr/local/lib/libgbwtgraph.a /usr/local/lib/libhandlegraph.a  /usr/local/lib/libsdsl.a  /usr/local/lib/libgbwt.a -Wl,--no-whole-archive -shared gbwt_wrapper.o  -pthread -fopenmp </code>   <br>
+                                                                                        Or just run the build.script
+                                                                                        This will produce the  libgbwtwrapper.so
+                                                                                </ol>
+                                                                        </div>
+
+
+                                                                        <section class="section">
+                                                                                <h1 class="title">Exposing the api</h1>
+                                                                                The libgbwtwrapper.so  Exposes  API from gbwt and gbawtgraph in the following way.
+                                                                                Most functions are class methods and so they operate on class instances and they are prefixed with the
+                                                                                class' name capitalized and accept the class as as an extra first argumemnt. So find(node) from Gbwt class
+                                                                                becomes GBWT_find(class, node). Exception is the constructors like GBWT_new , they do not need an extra argument
+                                                                                Struct methods and functions like SearchState  also work under the same principle. They accept a first argument with
+                                                                                either a SearchState to call it's methods or  a SearchState to mutate (return) and/or  maybe both
+                                                                                The need to mutate a state arise from the fact that you have to allocate memory when creating most of these
+                                                                                data structure , and this way you have much more control.
+                                                                                <div style="font-size:1.4rem;font-weight:700;">List of currently exposed api</div>
+                                                                                <ul>
+                                                                                        <li class="list-item">DGBWT_new</li>
+                                                                                        <li class="list-item">DGBWT_delete </li>
+                                                                                        <li class="list-item">DGBWT_insert</li>
+                                                                                        <li class="list-item">DGBWT_to_GBWT</li>
+                                                                                        <li class="list-item">GBWT_new</li>
+                                                                                        <li class="list-item">GBWT_delete</li>
+                                                                                        <li class="list-item">GBWT_first_node</li>
+                                                                                        <li class="list-item">GBWT_find</li>
+                                                                                        <li class="list-item">GBWT_bi_find</li>
+
+                                                                                        <li class="list-item">GBWT_SEARCHSTATE_extend</li>
+                                                                                        <li class="list-item">GBWT_BI_SEARCHSTATE_extend_forward</li>
+                                                                                        <li class="list-item">GBWT_BI_SEARCHSTATE_extend_backward</li>
+                                                                                        <li class="list-item">GBWT_runs</li>
+                                                                                        <li class="list-item">GBWT_size</li>
+                                                                                        <li class="list-item">GBWT_sequences</li>
+                                                                                        <li class="list-item">GBWT_sigma</li>
+                                                                                        <li class="list-item">GBWT_samples</li>
+                                                                                        <li class="list-item">GBWT_effective</li>
+                                                                                        <li class="list-item">GBWT_empty</li>
+                                                                                        <li class="list-item">GBWT_bidirectional</li>
+
+                                                                                        <li class="list-item">SEARCHSTATE_new</li>
+                                                                                        <li class="list-item">SEARCHSTATE_delete</li>
+                                                                                        <li class="list-item">SEARCHSTATE_node</li>
+                                                                                        <li class="list-item">SEARCHSTATE_range</li>
+                                                                                        <li class="list-item">BI_SEARCHSTATE_forward</li>
+                                                                                        <li class="list-item">BI_SEARCHSTATE_backward</li>
+
+                                                                                        <li class="list-item">BI_SEARCHSTATE_size</li>
+                                                                                        <li class="list-item">BI_SEARCHSTATE_new</li>
+                                                                                        <li class="list-item">BI_SEARCHSTATE_delete</li>
+                                                                                        <li class="list-item">SEARCHSTATE_size</li>
+                                                                                        <li class="list-item">SEARCHSTATE_empty</li>
+                                                                                        <li class="list-item">SEARCHSTATE_flip</li>
+
+                                                                                        <li class="list-items">GBWT_SEARCHSTATE_contains</li>
+
+                                                                                        <li class="list-item">GBWT_contains</li>
+                                                                                        <li class="list-item">GBWT_contains_edge</li>
+                                                                                        <li class="list-item">GBWT_edge</li>
+                                                                                        <li class="list-item">GBWT_to_comp</li>
+                                                                                        <li class="list-item">GBWT_to_node</li>
+                                                                                        <li class="list-item">GBWT_node_size</li>
+
+
+                                                                                        <li class="list-item">GBWT_LF_next_node_from_offset</li>
+                                                                                        <li class="list-item">GBWT_LF_next_node_from_edge</li>
+                                                                                        <li class="list-item">GBWT_LF_next_offset_from_node</li>
+                                                                                        <li class="list-item">GBWT_LF_next_offset_from_position</li>
+                                                                                        <li class="list-item">GBWT_LF_range_of_successors_from_node</li>
+                                                                                        <li class="list-item">GBWT_LF_range_of_successors_from_search_state</li>
+
+                                                                                        <li class="list-item">GBWTGRAPH_gfa_to_gbwt</li>
+                                                                                        <li class="list-item">SEARCHSTATE_sizeof</li>
+                                                                                        <li class="list-item">BI_SEARCHSTATE_sizeof</li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+                                                                                        <li class="list-item"></li>
+
+                                                                                </ul>
+
+                                                                        </section>
+
+
+                                                                        <section class="section">
+                                                                                <h1 class="title">Using the api</h1>
+                                                                                 We created a very simple function in Racket that uses the api. The  <a href="https://github.com/pangenome/privacy-pangenomics"> privacy pangenomics </a>
+                                                                                 Project exposes a single functions call-external-method . To call for instance the GBWT_find  method you just
+                                                                                 <code> call-external-method 'GBWT_find  &lt;args&gt;	</code>
+                                                                        </section>
+                                                                </div>
+                                                        </div>
+
+                                                </div>
+
+                        </section>
+                                        </div>
+                                        <script async type="text/javascript" src="../js/bulma.js"></script>
+                                        <script src='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.9.1/js/OverlayScrollbars.min.js'></script>
+                                        <script>
+                                                document.addEventListener("DOMContentLoaded", function() {
+                                                                                                        //The first argument are the elements to which the plugin shall be initialized
+                                                                                                        //The second argument has to be at least a empty object or a object with your desired options
+                                                                                                        OverlayScrollbars(document.querySelectorAll("body"), { });
+                                                                                                });
+                                        </script>
+        </body>
+
+</html>
+
+
+
+                                                                        <!--  -->
+                                                                        <!-- <section class="section"> -->
+                                                                        <!--  -->
+                                                                        <!--         <h1 class="title">The GBWT library</h1> -->
+                                                                        <!--         <section class="section"> -->
+                                                                        <!--                 <h1 class="title">Installing </h1> -->
+                                                                        <!--                 First we have to compile the GBWT library. It turns out that there are some issues, and the -->
+                                                                        <!--                 Readme might be outdated. First clone the repository recursively in order to force the -->
+                                                                        <!--                 custom version of sdsl to also clone it self. Second it seems that some flags are missing from the -->
+                                                                        <!--                 CMakeLists.txt. -->
+                                                                        <!--                 The location of cmake and sdsl source dirs -->
+                                                                        <!--                 and the fPIC flag,necessary since we want to generate dynamic libraries -->
+                                                                        <!--  -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 I solved this by inserting the following flags: -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 <code> set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -g -fPIC") </code> -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 <code> set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -fPIC") </code> -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 <code> set(CMAKE_SOURCE_DIR./src) </code> -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 <code> set(SDSL_SOURCE_DIR ./deps/sdsl-lite) </code> -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 <code> SOURCE_DIR "${PROJECT_SOURCE_DIR}/deps/sdsl-lite" </code> -->
+                                                                        <!--                 <br> -->
+                                                                        <!--                 Then followed the rest of the instructions and run./install.sh -->
+                                                                        <!--  -->
+                                                                        <!--         </section> -->
+                                                                        <!--  -->
+                                                                        <!--         <section> -->
+                                                                        <!--                 <h1 class="title">Wrapping </h1> -->
+                                                                        <!--                 This is the most tedious part. There are some tools that are generated when we compile the gbwt -->
+                                                                        <!--                 library, but they do not provide a stdout, they output directly to files, which is inconvenient. -->
+                                                                        <!--                 Sincethis is a C++ library, without any exports by design, We have to wrap all the functions to -->
+                                                                        <!--                 C equivalent and create a library which can be accessed by ffi -->
+                                                                        <!--                 This is done on the gbwt-wrapper project. This project also includeslibgbwt.alibsdsl.a -->
+                                                                        <!--                 precompiled as per the instructions in the previous section. The script build.script should be enough to produce -->
+                                                                        <!--                 a dynamic library libgbwtwrapper.so. -->
+                                                                        <!--                 All GBWT methods have been replaced byC functions thataccept a pointer to a GBWT object, as defined in -->
+                                                                        <!--                 gbwt library and thencall internally the method. -->
+                                                                        <!--                 Most of the functions have been exported, there is some minor work to be done namely exporting template functions -->
+                                                                        <!--                 The list of expoerted methods is in the projects single header file -->
+                                                                        <!--  -->
+                                                                        <!--         </section> -->
+                                                                        <!--  -->
+                                                                        <!-- </section > -->
