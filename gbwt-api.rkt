@@ -85,14 +85,22 @@
      `("GBWT_contains "  .  ,(_fun _pointer  _uint64 ->  _bool))
      `("GBWT_contains_edge" . ,(_fun _pointer _CPair ->  _bool))
      `("GBWT_SEARCHSTATE_contains_"   .  ,(_fun _pointer _pointer ->  _bool))
-     `("GBWT_LF_next_node_from_offset" . ,(_fun _pointer _uint64  _uint64 ->  _CPair))
      `("GBWT_sequences " . ,(_fun _pointer -> _uint64))
+     `("GBWT_LF_next_node_from_offset" . ,(_fun _pointer _uint64  _uint64 ->  _CPair))
      `("GBWT_LF_next_node_from_edge" . ,(_fun _pointer _CPair ->  _CPair))
-     `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _CPair _uint64 ->  _CPair))
+     `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _uint64  _uint64  _uint64 ->  _uint64))
      `("GBWT_LF_range_of_successors_from_node" . ,(_fun _pointer _uint64 _CPair  _uint64 ->  _CPair))
      `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
      `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
 
+
+
+; extern "C" CPair GBWT_LF_next_node_from_offset (void * GBWT, node_type from, size_type i);
+; extern "C" CPair GBWT_LF_next_node_from_edge(void * GBWT, CPair position);
+; extern "C" size_type GBWT_LF_next_offset_from_node(void * GBWT, node_type from, size_type i, node_type to);
+; extern "C" size_type GBWT_LF_next_offset_from_position (void * GBWT, CPair position, node_type to);
+; extern "C" CPair GBWT_LF_range_of_successors_from_node(void * GBWT, node_type from, CPair  range, node_type to);
+; extern "C" CPair GBWT_LF_range_of_successors_from_search_state(void * GBWT, CSearchState state, node_type to);
 
 
 (define (debug _t)
@@ -147,10 +155,52 @@
                string->immutable-string  (ptr-ref  (CStringArray-data f) _string  s)]))
 
 (define GFAs (get-GFAS))
+; (list-ref GFAs 4)
+(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-external-method 'GBWTGRAPH-gfa-to-gbwt (list-ref GFAs 4))))
 
-(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-external-method 'GBWTGRAPH-gfa-to-gbwt    (list-ref GFAs 3))))
-
-(define search-state (malloc 'atomic (call-external-method "SEARCHSTATE_sizeof")))
+(define search-state (malloc 'atomic (call-external-method 'SEARCHSTATE-sizeof)))
 
 
+(define search-state-1 (malloc 'atomic (call-external-method 'SEARCHSTATE-sizeof)))
+
+(define (first-node  gbwt)
+  (call-external-method 'GBWT-first-node  gbwt))
+
+(first-node sample-gbwt)
+(define test-1 (call-external-method 'GBWT-find sample-gbwt search-state 2))
+(display (call-external-method 'SEARCHSTATE-node  search-state))
+
+(define extended (call-external-method 'GBWT-SEARCHSTATE-extend sample-gbwt search-state-1  search-state 3))
+
+(display (call-external-method 'SEARCHSTATE-node  search-state-1))
+
+(display (call-external-method 'GBWT-locate sample-gbwt 3 4))
+
+; (define test-1 (call-external-method 'GBWT-SEARCHSTATE-extend  sample-gbwt search-state-1  search-state 4))
+; (display (call-external-method 'SEARCHSTATE-node  search-state-1))
+
+(define (next-node  gbwt node offset)
+  (call-external-method 'GBWT-LF-next-node-from-offset gbwt node offset))
+
+; (first-node sample-gbwt)
+; (void * GBWT, node_type from, size_type i, node_type to))
+
+(define second-node
+  (next-node sample-gbwt 2 0))
+
+(define (next-offset gbwt from offset to)
+  (call-external-method 'GBWT-LF-next-offset-from-node gbwt from offset to))
+
+
+(define (find-nex gbwt from offset to)
+  (call-external-method 'GBWT-LF-next-offset-from-node gbwt from offset to))
+
+
+; (display pipa)
+
+;size_type LF(node_type from, size_type i, node_type to)
+
+; (next-offset sample-gbwt 2 0 4)
+; (CPair-first second-node)
+; (CPair-second second-node)
 
