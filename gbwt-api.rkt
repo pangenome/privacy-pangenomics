@@ -1,15 +1,15 @@
 #lang racket
 
-
 (require ffi/unsafe)
-(require describe)
 (require setup/dirs)
 (require memo)
 
-(provide call-external-method)
 
+(provide call-method)
 
-; (void (ffi-lib "/usr/local/lib/libhandlegraph.so" #:global? #t))
+(provide GBWTSequenceSourcePair-gbwt-ref)
+
+(provide get-gbwt)
 
 (define-cstruct _CStringArray ([data _pointer]
                                [size _int]))
@@ -20,6 +20,9 @@
 (define-cstruct _GBWTSequenceSourcePair ([gbwt-ref _pointer]
                                          [sequence-source-ref _pointer]))
 
+
+
+(define get-gbwt  GBWTSequenceSourcePair-gbwt-ref)
 
 (define (locate-library-path str)
   (let ([paths (map string->path
@@ -95,12 +98,6 @@
 
 
 
-; extern "C" CPair GBWT_LF_next_node_from_offset (void * GBWT, node_type from, size_type i);
-; extern "C" CPair GBWT_LF_next_node_from_edge(void * GBWT, CPair position);
-; extern "C" size_type GBWT_LF_next_offset_from_node(void * GBWT, node_type from, size_type i, node_type to);
-; extern "C" size_type GBWT_LF_next_offset_from_position (void * GBWT, CPair position, node_type to);
-; extern "C" CPair GBWT_LF_range_of_successors_from_node(void * GBWT, node_type from, CPair  range, node_type to);
-; extern "C" CPair GBWT_LF_range_of_successors_from_search_state(void * GBWT, CSearchState state, node_type to);
 
 
 (define (debug _t)
@@ -109,14 +106,6 @@
 
 ; (define read-GFA (get-ffi-obj "consume_gfs_file" libgfawrapper (_fun _pointer ->  _CStringArray)))
 
-(define (get-GFAS)
- (let ([fs  (directory-list  (current-directory))])
-  (map (λ(x) (string->bytes/utf-8 (path->string x)))
-   (filter (λ (x)
-             (let ([the-file (path-get-extension (path->string x))])
-               (if (not the-file)
-                   #f
-                   (bytes=? #".gfa" the-file)))) fs))))
 
 (define/memoize (create-foreign-function m)
  (let ([k (if (symbol? m)(symbol->string m) m)])
@@ -131,7 +120,7 @@
       (get-ffi-obj k* libgbwtwrapper  v)))))
 
 
-(define (call-external-method  . xs)
+(define (call-method  . xs)
      (match xs
        [(cons head tail)  (apply (create-foreign-function head) tail)]
        [(list head)  (create-foreign-function head)]
@@ -145,7 +134,7 @@
 
 (define (insert-to-sample-gbwt gbwt_ gs)
   (stream-for-each
-    (λ (x) (call-external-method "DGBWT_insert" gbwt_ x)) gs)
+    (λ (x) (call-method "DGBWT_insert" gbwt_ x)) gs)
   (stream-length gs))
 
 (define  (get-line . xs)
@@ -153,54 +142,4 @@
    [(list head) (get-line head 1)]
    [(list f s) #:when (< s (CStringArray-size f))
                string->immutable-string  (ptr-ref  (CStringArray-data f) _string  s)]))
-
-(define GFAs (get-GFAS))
-; (list-ref GFAs 4)
-(define sample-gbwt (GBWTSequenceSourcePair-gbwt-ref (call-external-method 'GBWTGRAPH-gfa-to-gbwt (list-ref GFAs 4))))
-
-(define search-state (malloc 'atomic (call-external-method 'SEARCHSTATE-sizeof)))
-
-
-(define search-state-1 (malloc 'atomic (call-external-method 'SEARCHSTATE-sizeof)))
-
-(define (first-node  gbwt)
-  (call-external-method 'GBWT-first-node  gbwt))
-
-(first-node sample-gbwt)
-(define test-1 (call-external-method 'GBWT-find sample-gbwt search-state 2))
-(display (call-external-method 'SEARCHSTATE-node  search-state))
-
-(define extended (call-external-method 'GBWT-SEARCHSTATE-extend sample-gbwt search-state-1  search-state 3))
-
-(display (call-external-method 'SEARCHSTATE-node  search-state-1))
-
-(display (call-external-method 'GBWT-locate sample-gbwt 3 4))
-
-; (define test-1 (call-external-method 'GBWT-SEARCHSTATE-extend  sample-gbwt search-state-1  search-state 4))
-; (display (call-external-method 'SEARCHSTATE-node  search-state-1))
-
-(define (next-node  gbwt node offset)
-  (call-external-method 'GBWT-LF-next-node-from-offset gbwt node offset))
-
-; (first-node sample-gbwt)
-; (void * GBWT, node_type from, size_type i, node_type to))
-
-(define second-node
-  (next-node sample-gbwt 2 0))
-
-(define (next-offset gbwt from offset to)
-  (call-external-method 'GBWT-LF-next-offset-from-node gbwt from offset to))
-
-
-(define (find-nex gbwt from offset to)
-  (call-external-method 'GBWT-LF-next-offset-from-node gbwt from offset to))
-
-
-; (display pipa)
-
-;size_type LF(node_type from, size_type i, node_type to)
-
-; (next-offset sample-gbwt 2 0 4)
-; (CPair-first second-node)
-; (CPair-second second-node)
 
