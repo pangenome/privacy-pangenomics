@@ -1,24 +1,59 @@
 #lang racket
 
 
+(define cpair-size 16)
+
 (require ffi/unsafe)
 (require setup/dirs)
 (require memo)
 
+; (require ffi/cvector)
 
 (provide call-method)
 (provide get-gbwt)
 
+(provide get-cpair)
 
-(define-cstruct _CStringArray ([data _pointer] [size _int]))
+(provide get-cpair*)
+
+(provide get-handle*)
 
 
-(define-cstruct _CPair ([first _uint64]
-                        [second _uint64]))
+(provide get-handle)
 
-(define-cstruct _GBWTSequenceSourcePair ([gbwt-ref _pointer]
-                                         [sequence-source-ref _pointer]))
+(define-cstruct _CStringArray
+  ([data _pointer] [size _int]))
 
+
+(define-cstruct _CPair
+  ([first _uint64]
+   [second _uint64]))
+
+
+(define-cstruct _handle_t
+  ([data (_array _bytes (compiler-sizeof '(long long int)))]))
+
+
+(define (get-handle x)
+   (handle_t-data x))
+
+
+(define (get-cpair cpair)
+   (values
+     (CPair-first cpair)
+     (CPair-second cpair)))
+
+(define (get-cpair* ptr)
+     (get-cpair (ptr-ref ptr _CPair)))
+
+
+(define-cstruct _GBWTSequenceSourcePair
+  ([gbwt-ref _pointer]
+   [sequence-source-ref _pointer]))
+
+
+(define (get-handle* the-ptr)
+  (ptr-ref the-ptr _handle_t))
 
 
 (define get-gbwt  GBWTSequenceSourcePair-gbwt-ref)
@@ -48,6 +83,28 @@
 (define gbwt-functions
   (make-hash
     (list
+      `("gfa_to_gbwtgraph". ,(_fun _string -> _pointer))
+      `("collect_handle_edges". ,(_fun _pointer _handle_t _bool -> _pointer))
+      `("collect_handles". ,(_fun _pointer _handle_t _bool -> _pointer))
+
+      `("print_nodes". ,(_fun _pointer _handle_t _bool -> _string))
+      `("graph_size". ,(_fun _pointer -> _int))
+      `("GBWTGRAPH_max_node_id".  ,(_fun _pointer -> _uint64))
+      `("GBWTGRAPH_min_node_id". ,(_fun _pointer -> _uint64));
+      `("get_state". ,(_fun _handle_t _pointer -> _void))
+
+      `("size_of_handle_t". ,(_fun -> _int))
+      `("node_to_handle" . ,(_fun _uint64 -> _handle_t))
+      `("handle_to_node". ,(_fun _handle_t -> _uint64))
+
+      `("graph_pop_front". ,(_fun _pointer _pointer -> _bool))
+      `("graph_pop_last". ,(_fun _pointer _pointer -> _bool))
+
+      `("graph_last_node". ,(_fun _pointer _pointer -> _bool))
+      `("graph_first_node". ,(_fun _pointer _pointer -> _bool))
+
+      `("GBWTGRAPH_find_path_from_nodes". ,(_fun _pointer _pointer _int _pointer -> _void))
+
 
       `("DGBWT_delete" .  ,(_fun _pointer ->  _void))
       `("DGBWT_new" . ,(_fun ->  _pointer))
@@ -72,13 +129,12 @@
       `("BI_SEARCHSTATE_state_size" . ,(_fun _pointer -> _uint64))
       `("SEARCHSTATE_empty"  . ,(_fun _pointer -> _bool))
       `("SEARCHSTATE_flip"  . ,(_fun _pointer -> _bool))
+      `("GBWT_SEARCHSTATE_contains" . ,(_fun _pointer _pointer ->  _bool))
       `("GBWT_size"  . ,(_fun _pointer -> _uint64))
       `("GBWT_sequences"  . ,(_fun _pointer -> _uint64))
       `("GBWT_sigma"  . ,(_fun _pointer -> _uint64))
       `("GBWT_samples"  . ,(_fun _pointer -> _uint64))
       `("GBWT_effective"  . ,(_fun _pointer -> _uint64))
-      `("GBWT_SEARCHSTATE_contains" . ,(_fun _pointer _pointer ->  _bool))
-
 
       `("GBWT_edge" . ,(_fun _pointer _uint64 _uint64 ->  _bool))
       `("GBWT_to_comp" . ,(_fun _pointer _uint64 ->  _uint64))
@@ -90,15 +146,15 @@
       `("GBWT_contains_edge" . ,(_fun _pointer _CPair ->  _bool))
       `("GBWT_SEARCHSTATE_contains_"   .  ,(_fun _pointer _pointer ->  _bool))
       `("GBWT_sequences " . ,(_fun _pointer -> _uint64))
+      `("GBWT_start" . ,(_fun _pointer _uint64 _pointer -> _void))
+      `("GBWT_tryLocate" . ,(_fun _pointer _uint64 _uint64  -> _uint64))
+      `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
+
       `("GBWT_LF_next_node_from_offset" . ,(_fun _pointer _uint64  _uint64 ->  _CPair))
       `("GBWT_LF_next_node_from_edge" . ,(_fun _pointer _CPair ->  _CPair))
       `("GBWT_LF_next_offset_from_node" . ,(_fun _pointer _uint64  _uint64  _uint64 ->  _uint64))
       `("GBWT_LF_range_of_successors_from_node" . ,(_fun _pointer _uint64 _CPair  _uint64 ->  _CPair))
-      `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))
       `("GBWTGRAPH_gfa_to_gbwt". ,(_fun _string -> _GBWTSequenceSourcePair)))))
-
-
-
 
 
 (define (debug _t)
@@ -106,9 +162,13 @@
     (ptr-ref  (deb) _t)))
 
 
+; (get-ffi-obj "debug" libgbwtwrapper (_fun -> _pointer))
 
 (define/memoize (create-foreign-function m)
-                (let ([k (if (symbol? m)(symbol->string m) m)])
+                (let ([k (if
+                           (symbol? m)
+                           (symbol->string m) m)])
+                  (displayln m)
                   (with-handlers
                     ([exn:fail:contract?   (λ (exn) (displayln (exn-message exn)))]
                      [exn:fail?  (λ (exn)

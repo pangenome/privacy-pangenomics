@@ -25,6 +25,8 @@
 
 (define search-state-1 (malloc 'atomic (call-method 'SEARCHSTATE-sizeof)))
 
+(define sequenceA (malloc 'atomic 16))
+
 (define (first-node  gbwt)
   (call-method 'GBWT-first-node  gbwt))
 
@@ -50,43 +52,109 @@
 (define (gfa->gbwt str)
   (with-handlers
     ([(λ (ex) (eq? 'io-error ex )) (λ (_) (displayln "Input output error"))])
-    (define opened-gbwt (~>> str (call-method 'GBWTGRAPH-gfa-to-gbwt  ) get-gbwt))
+    (define opened-gbwt (~>> str (call-method 'GBWTGRAPH-gfa-to-gbwt) get-gbwt))
     (unless opened-gbwt (raise  'io-error))
     opened-gbwt))
 
 
+      ; `("GBWT_start" . ,(_fun _pointer _uint64 _CPair -> _void))
+      ; `("GBWT_tryLocate" . ,(_fun _pointer _uint64 _uint64  -> _uint64))
+      ; `("GBWT_edges" . ,(_fun _pointer _uint64 ->  _CPair))))
+      ;
 
-
-(define gfa-file (  list-ref GFAs 4))
-(display  (format "reading gfa file from disk : ~a\n" gfa-file))
-(define gbwt-object (gfa->gbwt gfa-file))
-
-(display   "GBWT object successfuly parsed from file ")
-
-
-(display  (format  "Trying to access first node \n Node:  ~a\n" (first-node gbwt-object)))
+(define (get-sequences gbwt)
+  (call-method 'GBWT-sequences gbwt))
 
 
 
-; (display (call-method 'SEARCHSTATE-node  search-state))
+; extern "C" void GBWT_start(void* GBWT, size_type sequence, CPair return_value);
+
+(define (sequence-position gbwt s)
+  (define tmp-s (malloc 'atomic 16))
+  (call-method 'GBWT-start gbwt s tmp-s)
+  (get-cpair* tmp-s))
 
 
-(display  (format  "Performing search for node ~a\n" 3))
+(define gfa-file (list-ref GFAs 1))
 
-(call-method 'GBWT-find gbwt-object search-state 3)
-
-(display (format "Accessing node from search state: \n Node: ~a\n" (call-method 'SEARCHSTATE-node  search-state)))
-
-(display (format "extend state to node ~a\n" 4))
-
-(define extended (call-method 'GBWT-SEARCHSTATE-extend gbwt-object search-state-1  search-state 4))
-
-(display (format "Accessing node from extended search state \n Node: ~a\n" (call-method 'SEARCHSTATE-node  search-state-1)))
+; (define one (call-method 'gfa-to-gbwtgraph  gfa-file))
 
 
-(display (call-method 'GBWT-locate gbwt-object 3 0))
+(define (gfa->gbwtgraph str)
+  (with-handlers
+    ([(λ (ex) (eq? 'io-error ex )) (λ (_) (displayln "Input output error"))])
+    (define opened-gbwt (~>> str (call-method 'gfa-to-gbwtgraph) get-gbwt))
+    (unless opened-gbwt (raise  'io-error))
+    opened-gbwt))
+
+
+(define sample-graph (call-method 'gfa-to-gbwtgraph gfa-file))
+
+
+(define (get-first-handle graph) (call-method 'node-to-handle (call-method  'GBWTGRAPH-min-node-id graph)))
 
 
 
+(define (handles->nodeList the-pointer)
+  (let loop  ([node-list '()])
+    (define  allocated-node (malloc 'atomic 8))
+    (define has-node? (call-method 'graph-last-node the-pointer allocated-node))
+    (if has-node?
+      (loop (cons  (ptr-ref  allocated-node _uint64 ) node-list))
+      node-list)))
 
 
+
+(define  (graph-nodes  graph)
+  (define first-handle (get-first-handle graph))
+  (define all-handles (call-method 'collect-handles graph  first-handle #f))
+  (handles->nodeList all-handles))
+
+
+(define nodes  (graph-nodes sample-graph))
+(displayln nodes)
+
+(define node_array (_array _uint64 (length nodes)))
+
+(define (nodeList->_array lst)
+  (define the-count (length lst))
+  (define node_array_type (_array _uint64  the-count))
+  (define node_array  (ptr-ref (malloc 'atomic node_array_type) node_array_type))
+  (for ([i (range the-count)])
+    (array-set! node_array i (list-ref lst i)))
+  node_array)
+
+
+
+;  1+,4+,5+,6+,7+,9+)
+
+(define path (list 4 5))
+
+(define (search-path graph lst)
+  (define path-array  (array-ptr  (nodeList->_array lst)))
+  (define search-state (malloc 'atomic (call-method 'SEARCHSTATE-sizeof)))
+  (call-method  'GBWTGRAPH-find-path-from-nodes  graph path-array (length lst) search-state)
+  search-state)
+
+
+(array-ptr (nodeList->_array (list 4 6)))
+
+(define  alpha-search (search-path sample-graph (list 4 )))
+
+; (describe alpha-search)
+
+(call-method "SEARCHSTATE_size" alpha-search)
+
+(get-cpair  (call-method "SEARCHSTATE_range" alpha-search))
+
+; (array-ref node-array 2)
+
+; (define  (print-nodes graph)
+;   (define first-handle (get-first-handle graph))
+;   (call-method 'print-nodes graph  first-handle #f))
+;
+
+; (define ska (print-nodes sample-graph))
+
+
+; (define pipa (graph-nodes sample-graph))
