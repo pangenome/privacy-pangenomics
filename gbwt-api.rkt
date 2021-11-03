@@ -18,25 +18,34 @@
 
 (provide get-handle*)
 
-
 (provide get-handle)
+
+(provide get-view)
 
 (define-cstruct _CStringArray
   ([data _pointer] [size _int]))
 
+(define-cstruct _View
+  ([data _bytes]
+   [length _uint64]))
+
+(define  (get-view view)
+  (values
+    (View-data view)
+    (View-length view)))
 
 (define-cstruct _CPair
   ([first _uint64]
    [second _uint64]))
+;  (ptr-ref (malloc 'atomic node_array_type) node_array_type))
 
+(define  _handle_t_data_type (_array _bytes (compiler-sizeof '(long long int))))
 
 (define-cstruct _handle_t
-  ([data (_array _bytes (compiler-sizeof '(long long int)))]))
-
+  ([data  _handle_t_data_type]))
 
 (define (get-handle x)
    (handle_t-data x))
-
 
 (define (get-cpair cpair)
    (values
@@ -104,6 +113,11 @@
       `("graph_first_node". ,(_fun _pointer _pointer -> _bool))
 
       `("GBWTGRAPH_find_path_from_nodes". ,(_fun _pointer _pointer _int _pointer -> _void))
+
+      `("GBWTGRAPH_sequence_view_from_node". ,(_fun _pointer _uint64  -> _View))
+
+
+      `("DGBWT_delete". ,(_fun _pointer _pointer _int _pointer -> _void))
 
 
       `("DGBWT_delete" .  ,(_fun _pointer ->  _void))
