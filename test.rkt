@@ -1,7 +1,9 @@
 #lang racket
 
-(require describe)
+(require math/distributions)            	
 (require "gbwtgraph")
+(require describe)
+
 ; (describe gfa-to-gbwtgraph)
 
 (define graph-1 (gfa-to-gbwtgraph  "cerevisiae.pan.fa.0b30003.2ff309f.0967224.smooth.gfa"))
@@ -38,45 +40,115 @@
 
 (define state-1 (GRAPH-get-state graph-1 1))
 
-; (define new-state  (GRAPH-extend graph-1  state-1 (+ a-number 1)))
-; (SearchState-get-range state-1)
-(SearchState-get-range state-1)
 
-; (define (extend-to-all-states graph)
-;   (letrec
-;    ([max-node    (+ 1 (GRAPH-max-node-id graph))]
-;     [min-node    (GRAPH-min-node-id graph)]
-;     [initial-state (GRAPH-get-state graph min-node)])
-;    (stream-map (λ (x) (GRAPH-extend graph initial-state x))  (in-range min-node (+ 1  max-node)))))
-;
+
+
+
+
+
+
 (define (extend-to-all-states graph initial-state)
   (letrec
    ([max-node    (+ 1 (GRAPH-max-node-id graph))]
-    [min-node    (GRAPH-min-node-id graph)])
-   (stream-map (λ (x) (GRAPH-extend graph initial-state x))  (in-range min-node (+ 1  max-node)))))
+    [min-node    (+ 1  (SearchState-node-get initial-state))])
+   (map (λ (x) (GRAPH-extend graph initial-state x)) (stream->list    (in-range min-node (+ 1  max-node))))))
 
 
-(define all-ranges (stream->list (extend-to-all-states graph-1 (GRAPH-get-state graph-1 1))))
+
+(define (find-max-frequency-state all-ranges)
+ (foldl
+   (λ (c x)
+      (if (> (cdr  (SearchState-get-range x))
+             (cdr  (SearchState-get-range c))) x c))
+   (car all-ranges) (cdr all-ranges)))
 
 
-(define partitioned  (group-by (λ (x) (cdr  (SearchState-get-range x))) all-ranges))
+(define all-ranges    (extend-to-all-states graph-1 (GRAPH-get-state graph-1 1)))
 
-; (for ([ i (in-range (length   partitioned))])
-;   (displayln (length (list-ref partitioned i))))
+; (define max-frequency-range  (find-max-frequency-state all-ranges))
 ;
-; (length (list-ref partitioned 1))
+; (SearchState-get-range max-frequency-range)
+; (SearchState-node-get  max-frequency-range)
+; (define all-ranges-next  (stream->list   (extend-to-all-states graph-1 (GRAPH-get-state graph-1 559238))))
+;
+; (define max-frequency-range-next (find-max-frequency-state (stream->list  all-ranges-next)))
+;
+;
+; (SearchState-get-range max-frequency-range-next)
+; (SearchState-node-get  max-frequency-range-next)
+;
+;
+; (define all-ranges-next-next  (stream->list   (extend-to-all-states graph-1 (GRAPH-get-state graph-1 (SearchState-node-get  max-frequency-range-next)))))
+;
+; (define max-frequency-range-next-next (find-max-frequency-state (stream->list  all-ranges-next-next)))
+;
+; (SearchState-node-get max-frequency-range-next-next)
+;
+; (SearchState-get-range max-frequency-range-next-next)
+;
 
-(define step1 (stream->list    (extend-to-all-states graph-1 (list-ref (list-ref partitioned 1) 1))))
 
-; (length step1)
+(define (follow-maximum-path graph steps)
+  (define initial-node (GRAPH-min-node-id graph))
+  (let loop ([n steps] [node-id initial-node] [collected-nodes initial-node])
+     (if (equal? n 0)
+       collected-nodes
+       (letrec ([all-ranges     (extend-to-all-states graph (GRAPH-get-state graph node-id))]
+                [max-frequency-state (find-max-frequency-state all-ranges)]
+                [new-node (SearchState-node-get max-frequency-state)])
+          (loop (- n 1) new-node (cons new-node collected-nodes))))))
 
+
+(define (group-ranges ranges)
+   (group-by (λ (x) (cdr  (SearchState-get-range x))) ranges))
+
+(define group1 (group-ranges all-ranges))
+
+(define group-of-interest (third group1))
+
+(define state-2 (car group-of-interest))
+
+(define node1 (SearchState-node-get   (car group-of-interest)))
+
+(describe node1)
+
+(define states ( extend-to-all-states graph-1 (car group-of-interest)))
+
+(define group2 (group-ranges state-2))
+
+(define state3 (car (car group2)))
+(define next-node  (SearchState-node-get   state3))
+
+(define states1 (extend-to-all-states graph-1 state3))
+
+
+(define group3 (group-ranges states1))
+
+
+#'(map  (λ(x) (SearchState-node-get x))   re-group)
+
+; (map car (map  (λ(x)(map SearchState-get-range x))   group1))
+
+
+; (define test-1 (follow-maximum-path graph-1 6))
+
+;(SearchState-get-range max-frequency-range)
+; (describe max-frequency-range)
+; (define partitioned  (group-by (λ (x) (cdr  (SearchState-get-range x))) all-ranges))
+; (define step1 (stream->list    (extend-to-all-states graph-1 (list-ref (list-ref partitioned 1) 1))))
+; (define group2  (group-by (λ (x) (cdr  (SearchState-get-range x))) step1))
+;
+
+; (SearchState-get-range (car   (car (cdr group2))))
+; (map SearchState-node-get  (car group2))
+; (SearchState-get-range (car  step1))
 ; (d(stream->list  step1))
 ;(map SearchState-get-range  step1)
 ; (describe stream-ref)
 
 
 ; (define extensions  (map (λ (x) (GRAPH-extend graph-1 x)) (list-ref partitioned 1)))
-    ; extend-to-all-states (list-ref partitioned 1))
+ ; extend-to-all-states (list-ref partitioned 1))
 
 ; (define step-2 (map (λ (x) (extend-to-all-states graph-1 x)) partitioned))
 
@@ -85,13 +157,6 @@
 ; (thread
 ;   (λ ()
 ;      (set! partitioned  (group-by (λ (x) (cdr  (SearchState-get-range x))) all-ranges))))
-
-(define (find-max-frequency-state all-ranges)
- (stream-fold
-   (λ (c x)
-      (if (> (cdr  (SearchState-get-range x))
-             (cdr  (SearchState-get-range c))) x c))
-   (car  all-ranges) (cdr all-ranges)))
 
 
 ; (find-max-frequency-state )
@@ -102,7 +167,7 @@
 
 ; (define (partition-by-frequency ranges)
 ;   (let loop ([acc (list)] [rst ranges] [n 1])
-;     (if (empty? ranges) 
+;     (if (empty? ranges)
 ;       acc
 ;      (let-values
 ;              ([(p r) (partition (λ (x) (= n (cdr  (SearchState-get-range x)))) ranges)])
