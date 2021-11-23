@@ -44,23 +44,26 @@
    (map (λ (x) (GRAPH-extend graph initial-state x)) (stream->list    (in-range min-node (+ 1  max-node))))))
 
 
+(define (utility x)
+  (+ 0.1 (SearchState-size x)))
+
 (define (find-max-frequency-state all-ranges)
  (foldl
    (λ (c x)
-      (if (> (cdr  (SearchState-get-range x))
-             (cdr  (SearchState-get-range c))) x c))
+      (if (> (utility x)
+             (utility c)) x c))
    (car all-ranges) (cdr all-ranges)))
 
 (define (find-min-frequency-state all-ranges)
  (foldl
    (λ (c x)
-      (if (< (cdr  (SearchState-get-range x))
-             (cdr  (SearchState-get-range c))) x c))
+      (if (< (utility x)
+             (utility c)) x c))
    (car all-ranges) (cdr all-ranges)))
 
 (define all-ranges    (extend-to-all-states graph-1 (GRAPH-get-state graph-1 1)))
 
-
+(utility  (find-max-frequency-state all-ranges))
 
 (define (follow-maximum-path graph steps)
   (define initial-node (GRAPH-min-node-id graph))
@@ -73,32 +76,36 @@
           (loop (- n 1) new-node (cons new-node collected-nodes))))))
 
 (define (group-ranges ranges)
-   (group-by (λ (x) (cdr  (SearchState-get-range x))) ranges))
+   (group-by (λ (x) (utility x)) ranges))
+
+(define grouped  (group-ranges  all-ranges))
+
+; (map utility  (map first grouped))
 
 (define  (sample-list lst)
   (list-ref lst (random   (length lst))))
 
-(define utility (λ(x)
-                  (define util (SearchState-get-range x))
-                  (displayln util)
-                  (cdr  util)))
+
+
 
 (define (sampling graph  ε state)
      (define extended-states  (extend-to-all-states graph state))
      (define sorted-frequencies (sort extended-states < #:key  utility))
-     (displayln (length sorted-frequencies))
+     ; (displayln (length sorted-frequencies))
      (define random-sampler (λ () (sample-list sorted-frequencies)))
      (define  α
        (with-handlers ([exn:fail:contract:divide-by-zero? (λ(_) (displayln "Divided by zero"))]
                        [exn:fail? (λ (_) (displayln "error"))])
-                      (/  ε  (* 2 (- (utility (last sorted-frequencies)) (utility (first sorted-frequencies)))))))
+                      (/  ε  (* 2 (-
+                                    (utility (last sorted-frequencies))
+                                    (utility  (first sorted-frequencies)))))))
      (define exp-mechanism-distribution
        (λ (x)
           (with-handlers ([exn:fail? (λ(y) (displayln y))])
             (exp (* α x)))))
      (let loop ([random-Y (random-sampler)] [random-X (random-sampler)])
        (if (<= (exp-mechanism-distribution (utility random-X))
-               (utility random-Y))
+               (utility  random-Y))
          random-X
          (loop (sample-list sorted-frequencies)
                (sample-list sorted-frequencies)))))
@@ -117,12 +124,13 @@
 (define exponential-samples (void))
 
 
-(map SearchState-size all-ranges)
 
-#'(thread (λ () (set! exponential-samples   (exhaust-sampling    graph-1 0.1 first-state))))
+(thread (λ () (set! exponential-samples   (exhaust-sampling    graph-1 0.1 first-state))))
 
 #'(define sampler (make-exponential-sampling  graph-1 0.1))
 
 #'(sort fi< #:key  utility)
 
 #'(define sample  (sampling graph-1 0.1 first-state))
+
+; (map utility all-ranges)
