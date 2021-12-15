@@ -1,9 +1,9 @@
 #lang racket
 ; (require math/distributions)
+(require math/base)
 (require "gbwtgraph")
+
 (require describe)
-
-
 
 
 (define graph-1 (gfa-to-gbwtgraph  "cerevisiae.pan.fa.0b30003.2ff309f.0967224.smooth.gfa"))
@@ -44,26 +44,23 @@
    (map (λ (x) (GRAPH-extend graph initial-state x)) (stream->list    (in-range min-node (+ 1  max-node))))))
 
 
-(define (utility x)
-  (+ 0.1 (SearchState-size x)))
-
-(define (find-max-frequency-state all-ranges)
+(define (find-max-frequency-state ranges)
  (foldl
    (λ (c x)
-      (if (> (utility x)
-             (utility c)) x c))
-   (car all-ranges) (cdr all-ranges)))
+      (if (> (SearchState-size x)
+             (SearchState-size c)) x c))
+   (car all-ranges) (cdr ranges)))
 
 (define (find-min-frequency-state all-ranges)
  (foldl
    (λ (c x)
-      (if (< (utility x)
-             (utility c)) x c))
+      (if (< (SearchState-size x)
+             (SearchState-size c)) x c))
    (car all-ranges) (cdr all-ranges)))
 
 (define all-ranges    (extend-to-all-states graph-1 (GRAPH-get-state graph-1 1)))
 
-(utility  (find-max-frequency-state all-ranges))
+
 
 (define (follow-maximum-path graph steps)
   (define initial-node (GRAPH-min-node-id graph))
@@ -76,61 +73,62 @@
           (loop (- n 1) new-node (cons new-node collected-nodes))))))
 
 (define (group-ranges ranges)
-   (group-by (λ (x) (utility x)) ranges))
+   (group-by (λ (x) (SearchState-size x)) ranges))
 
 (define grouped  (group-ranges  all-ranges))
-
-; (map utility  (map first grouped))
 
 (define  (sample-list lst)
   (list-ref lst (random   (length lst))))
 
+'(define (utility db rn) 
+   (define highest-frequency  (find-max-frequency-state db))
+   (define frequency (SearchState-size rn))
+   (/ 1 (expt  (- highest-frequency frequency) 2)))
 
 
 
-(define (sampling graph  ε state)
-     (define extended-states  (extend-to-all-states graph state))
-     (define sorted-frequencies (sort extended-states < #:key  utility))
-     ; (displayln (length sorted-frequencies))
-     (define random-sampler (λ () (sample-list sorted-frequencies)))
-     (define  α
-       (with-handlers ([exn:fail:contract:divide-by-zero? (λ(_) (displayln "Divided by zero"))]
-                       [exn:fail? (λ (_) (displayln "error"))])
-                      (/  ε  (* 2 (-
-                                    (utility (last sorted-frequencies))
-                                    (utility  (first sorted-frequencies)))))))
-     (define exp-mechanism-distribution
-       (λ (x)
-          (with-handlers ([exn:fail? (λ(y) (displayln y))])
-            (exp (* α x)))))
-     (let loop ([random-Y (random-sampler)] [random-X (random-sampler)])
-       (if (<= (exp-mechanism-distribution (utility random-X))
-               (utility  random-Y))
-         random-X
-         (loop (sample-list sorted-frequencies)
-               (sample-list sorted-frequencies)))))
-
-(define first-state (initialize-searchState graph-1))
-
-(define (exhaust-sampling graph ε state)
-  (define max-node (GRAPH-max-node-id graph))
-  (let loop ([current-state state] [samples '() ] [counter 1])
-
-   (define  next-state (sampling graph ε current-state))
-   (if (<  (SearchState-node-get next-state) max-node)
-    (loop next-state (cons next-state samples) (+ 1 counter))
-    samples)))
-
-(define exponential-samples (void))
-
-
-
-(thread (λ () (set! exponential-samples   (exhaust-sampling    graph-1 0.1 first-state))))
-
-#'(define sampler (make-exponential-sampling  graph-1 0.1))
-
-#'(sort fi< #:key  utility)
-
-#'(define sample  (sampling graph-1 0.1 first-state))
-
-; (map utility all-ranges)
+; (not (member 3 '( 3 't4ll  3)))
+; (when   (displayln "fdsa"))
+; (define (sampling graph  ε state)
+;      (define extended-states  (extend-to-all-states graph state))
+;      (define sorted-frequencies (sort extended-states < #:key  SearchState-size))
+;      (define random-sampler (λ () (sample-list sorted-frequencies)))
+;      (define  α
+;        (with-handlers ([exn:fail:contract:divide-by-zero? (λ(_) (displayln "Divided by zero"))]
+;                        [exn:fail? (λ (_) (displayln "error"))])
+;                       (/  ε)))
+;      (define exp-mechanism-distribution
+;        (λ (x)
+;           (with-handlers ([exn:fail? (λ(y) (displayln y))])
+;             (exp (* α x)))))
+;      (let loop ([random-Y (random-sampler)] [random-X (random-sampler)])
+;        (if (<= (exp-mechanism-distribution (SearchState-size random-X))
+;                (SearchState-size  random-Y))
+;          random-X
+;          (loop (sample-list sorted-frequencies)
+;                (sample-list sorted-frequencies)))))
+;
+; (define first-state (initialize-searchState graph-1))
+;
+; (define (exhaust-sampling graph ε state)
+;   (define max-node (GRAPH-max-node-id graph))
+;   (let loop ([current-state state] [samples '() ] [counter 1])
+;
+;    (define  next-state (sampling graph ε current-state))
+;    (if (<  (SearchState-node-get next-state) max-node)
+;     (loop next-state (cons next-state samples) (+ 1 counter))
+;     samples)))
+;
+; (define exponential-samples (void))
+;
+;
+;
+; (thread (λ () (set! exponential-samples   (exhaust-sampling    graph-1 0.1 first-state))))
+;
+; #'(define sampler (make-exponential-sampling  graph-1 0.1))
+;
+; #'(sort fi< #:key  SearchState-size)
+;
+; #'(define sample  (sampling graph-1 0.1 first-state))
+;
+; ; (map SearchState-size all-ranges)
