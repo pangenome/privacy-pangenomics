@@ -9,7 +9,10 @@
 (define graph-1 (gfa-to-gbwtgraph  "cerevisiae.pan.fa.0b30003.2ff309f.0967224.smooth.gfa"))
 
 
+
 (define vector_test (GRAPH-get-all-handles graph-1))
+
+(struct GFP (graph frequency))
 
 
 (define (first-node-handle gbwtgraph)
@@ -79,6 +82,21 @@
 
 (define  (sample-list lst)
   (list-ref lst (random   (length lst))))
+
+
+
+
+
+
+
+(define (utility-function x r)
+   (let ([haplotype-frequency (SearchState-size (GFP-graph r))]
+         [frequency (GFP-frequency r)])
+    (/ (log (+ 1 haplotype-frequency))
+       (+ 1  (expt  (- haplotype-frequency frequency) 2)))))
+
+  
+
 
 '(define (utility db rn) 
    (define highest-frequency  (find-max-frequency-state db))
