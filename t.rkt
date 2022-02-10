@@ -25,11 +25,9 @@
 
 (first (stream-gfas gfa-path))
 
-(define (find-max-frequency))
 
 (define (populate-utilities bgwt)
-   (let ([first-handle (first-node-handle gbwt)])
-    (GRAPH-get-state gbwt first-handle)))
+   (let ([initial-node  1])))
 
 
 ; (define utility x h
