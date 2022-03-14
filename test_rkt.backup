@@ -1,0 +1,119 @@
+
+
+; (time
+;    (define x
+;      (for/list ([i (in-range 1000000)])
+;        i))
+;    (void))
+
+
+; (define (sample-graph graph states depth #:epsilon [ε  0.1] #:node-list [lst null])
+;    (define max-frequency (graph-max-frequency graph))
+;    (define Δu   (log (/ max-frequency (+ 1 max-frequency))))
+;    (define utility-function (make-utility  ε Δu))
+;    (match lst
+;      ['() (let loop ([counter depth])
+;             ())]))
+;
+
+
+
+
+; (define (extend-state graph state nodes)
+;   (map  (λ (x) (GBWT-extend state x)) nodes))
+;
+
+
+
+; (define (extend-states graph states)
+;    (match args
+;      ['() '()]
+;      [(cons head tail) (cons  (GRAPH-extend graph initial-state x)  (extend-states  (GRAPH-extend graph x)))]))
+;
+
+
+; (cons 'a (cons 2 '()))
+
+
+
+
+; (define (exhaust-nodes graph starting-node end-node)
+;     (GRAPH-get-state graph  (first-node-handle graph)))
+;
+
+; (define (get-extended-states graph)
+;   (letrec
+;    ([max-node    (+ 1  (GRAPH-max-node-id graph))]
+;     [min-node    (+ 1  (GRAPH-min-node-id graph))]
+;     [initial-state (initialize-searchState graph)])
+;    (map (λ (x) (GRAPH-extend graph initial-state x)) (stream->list (in-range min-node (+ 1  max-node))))))
+
+; (define  (extend-states graph  states node-ids)
+;   (map (λ (state node-id) ( GRAPH-extend state node-id))))
+
+
+
+; (define  (sample-nodes gbwt  number-of-nodes)
+;   (define max-node (GRAPH-max-node-id gbwtgraph))
+;   (define min-node (GRAPH-min-node-id gbwtgraph))
+;   (define  node-list (range  min-node max-node))
+;   (let loop ([counter number-of-nodes  nodes node-list])
+;      (define ref (random (length nodes)))
+;      (define starting node (list-ref node-list ref)
+;           (foldl))))
+
+; (random 2 45)
+; (random-ref (range 1 100))
+; ; (describe (range 1 11))
+; (list-ref (range 1 100) 8)
+; (foldl (λ (acc item)
+  ;           ())
+  ;
+  ;
+  ;
+  ;
+  ;
+  ;        (car  node-list) (cdr node-list)))
+  ;
+; (car (range 2 309))
+
+; (define (calculate-utilities  graph ε)
+;   (letrec   ([first-node (GRAPH-min-node-id graph)]
+;              [state-stream  (get-extended-states graph)]
+;              [max-frequency-state (find-max-frequency-state state-stream)]
+;              [max-frequency (SearchState-size max-frequency-state)])
+;     (when (> max-frequency 0)
+;       (letrec ([Δu  (log (/ max-frequency (+ 1 max-frequency)))]
+;                [utility-function (make-utility ε Δu)])
+;         (displayln "calculating utilities")
+;         (hash-map  'states (map utility-function state-stream)
+;                    'maximum-probability-density (exp (/ (* ε (log (+ 1  max-frequency))) (* 2  Δu))))))))
+
+
+
+
+
+
+
+; (thread
+;   (thunk  (set! sampled-utilities (calculate-utilities  sample2 0.1))
+;           (thread (thunk  (set! normalized-sample (filter (λ (x) (not (= (second x)  1))) sampled-utilities))))))
+;
+;
+; '(define (make-rejection-sampler mp)
+;    (let([max-utility-plus  (+ 1 (floor   (hash-ref mp 'maximum-probability-density)))]
+;         [states (hash-ref mp 'states)])
+;       (thunk
+;            (define  (loop)
+;               (let ([rnd-x (random max-utility-plus)]
+;                     [rnd-y (random max-utility-plus)]))))))
+;
+; ; (describe normalized-sample)
+; ; (length normalized-sample)
+
+
+; (define (random-node gbwt)
+;   (let
+;     ([max-node    (+ 1 (GRAPH-max-node-id gbwt))]
+;      [min-node    (GRAPH-min-node-id gbwt)])
+;     (random min-node max-node)))
